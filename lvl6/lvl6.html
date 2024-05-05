@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sir Chardy's Math Challenge</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-image: url('bg.svg'); /* Your pixelated background */
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            font-family: 'Press Start 2P', cursive;
+        }
+
+        .container {
+            position: relative;
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            width: 90%;
+            max-width: 1200px;
+        }
+
+        .game-box {
+            width: calc(40% - 20px);
+            padding: 20px;
+            margin: 10px;
+            border: 4px solid #FFFFFF;
+            background-color: rgba(0, 0, 0, 0.75);
+            color: #FFFFFF;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 0 15px #FFFFFF;
+            image-rendering: pixelated;
+        }
+
+        .animation-box {
+            width: calc(50% - 20px);
+            padding: 20px;
+            margin: 10px;
+            border: 4px solid #FFFFFF;
+            background-color: rgba(0, 0, 0, 0.75);
+            color: #FFFFFF;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 0 15px #FFFFFF;
+            image-rendering: pixelated;
+        }
+
+        h3, h5, p, input, button, #feedback, #progressbar, #score, #timeLeft {
+            font-family: 'Press Start 2P', cursive;
+            color: #FFFFFF;
+            text-shadow: 0 0 5px #000000;
+        }
+
+        input, button {
+            background: #000000;
+            border: 2px solid #FFFFFF;
+            padding: 5px 10px;
+            color: #FFFFFF;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        button:hover {
+            background: #FFFFFF;
+            color: #000000;
+        }
+
+        input {
+            margin: 10px 0;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 20;
+            animation: fadeIn 0.5s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .modal-content {
+            text-align: center;
+            padding: 40px;
+            border: 3px solid #FFFFFF;
+            background-color: #000000;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(255, 255, 255, 0.5);
+            animation: scaleIn 0.5s;
+        }
+        @keyframes scaleIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .modal-message {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+        }
+        .description {
+            font-size: 0.9rem;
+            color: #AAAAAA;
+            margin-bottom: 20px;
+        }
+        #nextLevelButton, #mainMenuButton, #restartButton {
+            font-size: 1rem;
+            padding: 10px 20px;
+            cursor: pointer;
+            background: #FFFFFF;
+            color: #000000;
+            border-radius: 5px;
+        }
+        #nextLevelButton:hover, #mainMenuButton:hover, #restartButton:hover {
+            background-color: #f2f2f2;
+        }
+
+        .animation-img {
+            width: 100%;
+            border-radius: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="game-box">
+        <p id="question"></p>
+        <input type="text" id="answer" placeholder="Enter your answer here">
+        <button onclick="submitAnswer()">Submit</button>
+        <div id="feedback"></div>
+        <p><span id="timeLeft">120</span> seconds</p>
+    </div>
+    <div class="animation-box">
+       <img src="bloop3.svg" alt="Animation" id="animationImage">
+    </div>
+</div>
+
+<!-- Win Modal -->
+<div id="winModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <h1>Congratulations!</h1>
+        <p>You completed the challenge successfully.</p>
+        <button id="mainMenuButton" onclick="mainMenu()">Main Menu</button>
+        <button id="nextLevelButton" onclick="nextLevel()">Next Level</button>
+    </div>
+</div>
+
+<!-- Loss Modal -->
+<div id="lossModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <h1>Game Over!</h1>
+        <p>You did not charge the megaphone in time!</p>
+        <button id="mainMenuButton" onclick="mainMenu()">Main Menu</button>
+        <button id="restartButton" onclick="playAgain()">Restart</button>
+    </div>
+</div>
+
+<script>
+   const animationImages = [
+    "bloop3.svg",
+    "bloop2.svg",
+    "bloop.svg",
+    "bloop4.svg",
+    "bloop5.svg"
+];
+    const questions = [
+        { q: 'Convert 90 degrees to radians (rounded to two decimal places).', a: '1.57' },
+        { q: 'Convert 0.52 radians to degrees (rounded to two decimal places).', a: '29.79' }
+        // Add more questions as needed
+    ];
+    
+    let currentQuestionIndex = 0;
+    let timeLeft = 120;
+    let timeSinceLastAction = 0;
+    let currentAnimationFrameIndex = 0;
+    let timer;
+
+    function generateNewQuestion() {
+        const currentQuestion = questions[currentQuestionIndex];
+        document.getElementById("question").innerText = currentQuestion.q;
+        timeSinceLastAction = 0;
+        currentAnimationFrameIndex = 0; // Reset animation to the first frame
+        document.getElementById("animationImage").src = animationImages[currentAnimationFrameIndex];
+    }
+
+    function submitAnswer() {
+        const userAnswer = parseFloat(document.getElementById("answer").value).toFixed(2);
+        if (userAnswer === questions[currentQuestionIndex].a) {
+            document.getElementById("feedback").innerText = "Correct!";
+            currentQuestionIndex = (currentQuestionIndex + 1) % questions.length; // Loop through questions
+            generateNewQuestion();
+            timeSinceLastAction = 0; // Reset inactivity timer
+        } else {
+            document.getElementById("feedback").innerText = "Incorrect, try again.";
+            updateAnimation();
+            checkForLossDueToInactivity();
+        }
+        document.getElementById("answer").value = "";
+    }
+
+    function updateAnimation() {
+        if (timeSinceLastAction % 5 === 0 && timeSinceLastAction > 0) {
+            currentAnimationFrameIndex = (currentAnimationFrameIndex + 1) % animationImages.length;
+            document.getElementById("animationImage").src = animationImages[currentAnimationFrameIndex];
+        }
+        if (timeSinceLastAction === 20) {
+            document.getElementById("animationImage").src = animationImages[animationImages.length - 1];
+        }
+    }
+
+    function checkForLossDueToInactivity() {
+        if (timeSinceLastAction >= 20) {
+            clearInterval(timer);
+            showLossModal();
+        }
+    }
+
+    function startTimer() {
+        timer = setInterval(() => {
+            timeLeft--;
+            timeSinceLastAction++;
+            updateScoreAndTime();
+            updateAnimation();
+            checkForLossDueToInactivity();
+
+            if (timeLeft <= 0) {
+                clearInterval(timer);
+                showWinModal();
+            }
+        }, 1000);
+    }
+
+    function updateScoreAndTime() {
+        document.getElementById("timeLeft").innerText = `${timeLeft} seconds`;
+    }
+
+    function showLossModal() {
+        clearInterval(timer);
+        document.getElementById("lossModal").style.display = 'flex';
+    }
+
+    function showWinModal() {
+        clearInterval(timer);
+        document.getElementById("winModal").style.display = 'flex';
+    }
+
+    function restartGame() {
+        clearInterval(timer);
+        playAgain(); // Restart the game
+    }
+
+    function mainMenu() {
+        // Redirect to the main menu page
+        window.location.href = '../lvlscreen.html'; // Replace with the actual path to the main menu
+    }
+
+    function nextLevel() {
+        // Redirect to the next level page
+        window.location.href = '../cutscene6.html'; // Replace with the actual path to the next level
+    }
+
+    function playAgain() {
+        document.getElementById("winModal").style.display = 'none';
+        document.getElementById("lossModal").style.display = 'none';
+        currentQuestionIndex = 0;
+        timeLeft = 120; // Reset time
+        timeSinceLastAction = 0;
+        currentAnimationFrameIndex = 0;
+        document.getElementById("feedback").innerText = "";
+        generateNewQuestion();
+        startTimer(); // Start the timer
+    }
+
+    playAgain(); // Initialize the game
+</script>
+
+</body>
+</html>

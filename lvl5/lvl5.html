@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zombie Shooter Game - Trigonometry Challenges</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+        body, html {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-image: url('bg.svg');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            font-family: 'Press Start 2P', cursive;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            width: 80vw; /* Adjusted width based on viewport width */
+            max-width: 90vw; /* Adjust maximum width */
+            background: rgba(0, 0, 0, 0.6);
+            padding: 3vh; /* Adjusted padding */
+            border-radius: 12px;
+            box-shadow: 0 0 1.5vw rgba(255, 255, 255, 0.75); /* Adjusted shadow */
+        }
+        .game-box, .animation-box {
+            padding: 3vh; /* Adjusted padding */
+            margin: 2vh; /* Adjusted margin */
+            border: 0.4vw solid #FFFFFF; /* Adjusted border width */
+            background-color: rgba(0, 0, 0, 0.75);
+            color: #FFFFFF;
+            border-radius: 1vw; /* Adjusted border radius */
+            text-align: center;
+            box-shadow: 0 0 1.5vw #FFFFFF; /* Adjusted shadow */
+            image-rendering: pixelated;
+        }
+        h1, h3, h5, p, input, button, #feedback, #score, #timeLeft {
+            font-family: 'Press Start 2P', cursive;
+            color: #FFFFFF;
+            text-shadow: 0 0 5px #000000;
+        }
+        input, button {
+            background: #000000;
+            border: 0.3vw solid #FFFFFF; /* Adjusted border */
+            padding: 1vh 2vw; /* Adjusted padding */
+            color: #FFFFFF;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+            font-size: 2vh; /* Adjusted font size */
+        }
+        button:hover {
+            background: #FFFFFF;
+            color: #000000;
+        }
+        input {
+            margin: 2vh 0; /* Adjusted margin */
+        }
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 20;
+            animation: fadeIn 0.5s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .modal-content {
+            text-align: center;
+            padding: 5vh; /* Adjusted padding */
+            border: 0.4vw solid #FFFFFF; /* Adjusted border width */
+            background-color: #000000;
+            border-radius: 1vw; /* Adjusted border radius */
+            box-shadow: 0 0 2vw rgba(255, 255, 255, 0.5); /* Adjusted shadow */
+            animation: scaleIn 0.5s;
+        }
+        @keyframes scaleIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .modal-message {
+            font-size: 3vh; /* Adjusted font size */
+            margin-bottom: 4vh; /* Adjusted margin */
+        }
+        .description {
+            font-size: 2vh; /* Adjusted font size */
+            color: #AAAAAA;
+            margin-bottom: 3vh; /* Adjusted margin */
+        }
+        #playAgainButton, #nextLevelButton, #mainMenuButton, #restartButton {
+            font-size: 2.5vh; /* Adjusted font size */
+            padding: 2vh 3vw; /* Adjusted padding */
+            cursor: pointer;
+            background: #FFFFFF;
+            color: #000000;
+            border-radius: 1vw; /* Adjusted border radius */
+            margin: 1vh 2vh; /* Adjusted margin */
+        }
+        #playAgainButton:hover, #nextLevelButton:hover, #mainMenuButton:hover, #restartButton:hover {
+            background-color: #f2f2f2;
+        }
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+        }
+        .animation-img {
+            width: 100%;
+            border-radius: 1vw; /* Adjusted border radius */
+        }
+        #gameCanvas {
+            border: 0.3vw solid #FFFFFF; /* Adjusted border width */
+            background-color: rgba(0, 0, 0, 0.8);
+            box-shadow: 0 0 2vw #FFFFFF; /* Adjusted shadow */
+            margin-bottom: 2vh;
+            width: 70vw; /* Adjusted width */
+            height: 50vh; /* Adjusted height */
+        }
+        #controls {
+            margin-bottom: 1.5vh;
+            color: #FFFFFF;
+        }
+        input[type="range"] {
+            width: 60vw; /* Adjusted width */
+        }
+        #angleDisplay, #powerDisplay {
+            font-size: 2vh; /* Adjusted font size */
+            margin-left: 1vh; /* Adjusted margin */
+        }
+        #shootButton {
+            cursor: pointer;
+            background-color: #FFFFFF;
+            color: #000000;
+            border: none;
+            border-radius: 1vw; /* Adjusted border radius */
+            padding: 2vh 3vw; /* Adjusted padding */
+            transition: background-color 0.3s, color 0.3s;
+            width: 15vw; /* Adjusted width */
+            margin-bottom: 2vh;
+        }
+        #shootButton:hover {
+            background-color: #f2f2f2;
+        }
+        #output {
+            color: #FFFFFF;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div id="controls">
+        <div id="angleControl">
+            <label for="angle">Set your angle:</label>
+            <input type="range" id="angle" min="0" max="90" value="45">
+            <span id="angleDisplay">45.0°</span>
+        </div>
+        <div id="powerControl">
+            <label for="power">Set your power:</label>
+            <input type="range" id="power" min="1" max="100" value="50">
+            <span id="powerDisplay">50</span>
+        </div>
+    </div>
+    <button id="shootButton">Shoot!</button>
+    <div id="output"></div>
+    <canvas id="gameCanvas"></canvas>
+    <p>Time Left: <span id="timeLeft">30</span> seconds</p>
+</div>
+
+<!-- Win Modal -->
+<div id="winModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <h1>Congratulations!</h1>
+        <p>All zombies have been defeated.</p>
+        <button id="mainMenuButton" onclick="mainMenu()">Main Menu</button>
+        <button id="nextLevelButton" onclick="nextLevel()">Next Level</button>
+    </div>
+</div>
+
+<!-- Loss Modal -->
+<div id="lossModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <h1>You Lose!</h1>
+        <p>Time's up and not all zombies were hit.</p>
+        <button id="mainMenuButton" onclick="mainMenu()">Main Menu</button>
+        <button id="restartButton" onclick="restartGame()">Restart</button>
+    </div>
+</div>
+
+<!-- Start Modal -->
+<div id="startModal" class="modal">
+    <div class="modal-content">
+        <h1>Lvl 5: Shoot the zombies</h1>
+        <p>Shoot the zombies. For this level, the player is tasked with defending his allies from the zombies. Adjust the angle and power to shoot them down</p>
+    </div>
+</div>
+
+<script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const angleInput = document.getElementById('angle');
+    const angleDisplay = document.getElementById('angleDisplay');
+    const powerInput = document.getElementById('power');
+    const powerDisplay = document.getElementById('powerDisplay');
+    const outputDiv = document.getElementById('output');
+    const winModal = document.getElementById('winModal');
+    const lossModal = document.getElementById('lossModal');
+    const startModal = document.getElementById('startModal');
+    const timeLeftDisplay = document.getElementById('timeLeft');
+    const gravity = 9.81; // Gravity constant
+    const timeLimit = 150; // Time limit in seconds
+    let remainingTime = timeLimit;
+    let timerInterval;
+
+    // Load a zombie image
+    const zombieImage = new Image();
+    zombieImage.src = 'zombie.svg'; // Replace with the actual path to the zombie image
+
+    const zombiePositions = [
+        { x: canvas.width - -600, y: canvas.height - 100 },
+        { x: canvas.width - 200, y: canvas.height - 200 },
+        { x: canvas.width - 300, y: canvas.height - 150 },
+        { x: canvas.width - -400, y: canvas.height - 200 },
+        { x: canvas.width - -200, y: canvas.height - 150 },
+        { x: canvas.width - 200, y: canvas.height - 50 },
+        { x: canvas.width - -300, y: canvas.height - 150 },
+        { x: canvas.width - 400, y: canvas.height - 100 }
+    ];
+    let currentZombieIndex = 0; // Track current zombie position
+
+    function drawZombie() {
+        const pos = zombiePositions[currentZombieIndex];
+        const zombieWidth = 10 * Math.min(canvas.width, canvas.height) / 100;
+        const zombieHeight = zombieWidth * 1.5;
+
+        // Draw the zombie using an image
+        ctx.drawImage(zombieImage, pos.x, pos.y, zombieWidth, zombieHeight);
+    }
+
+    function drawScene() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawZombie(); // Draw the zombie at the current position
+    }
+
+    function drawTrajectory() {
+        drawScene(); // Clear and draw the background elements
+        const radians = angleInput.value * Math.PI / 180;
+        const power = parseFloat(powerInput.value);
+        const initialVelocityX = power * Math.cos(radians); // Adjusted for bottom-left to top-right trajectory
+        const initialVelocityY = -power * Math.sin(radians); // Adjusted for bottom-left to top-right trajectory
+
+        ctx.strokeStyle = 'red'; // Color of the trajectory line
+        ctx.lineWidth = 3;
+
+        // Calculate trajectory line length and end points
+        let lineLength = 100; // Adjust length to your requirement
+        let endX = initialVelocityX * lineLength / 10;
+        let endY = initialVelocityY * lineLength / 10; // Adjusted for negative y
+
+        // Draw the trajectory line from bottom-left
+        ctx.beginPath();
+        ctx.moveTo(10, canvas.height - 10); // Starting from the bottom-left
+        ctx.lineTo(10 + endX, canvas.height - 10 + endY); // Moving from bottom-left to top-right
+        ctx.stroke();
+    }
+
+    function shoot() {
+        const radians = angleInput.value * Math.PI / 180;
+        const power = parseFloat(powerInput.value) / 100 * canvas.width * 0.1; // Normalizing power by canvas width
+        let initialVelocityX = power * Math.cos(radians);
+        let initialVelocityY = -power * Math.sin(radians);
+        let posX = 10, posY = canvas.height - 10; // Launch position adjustment from bottom-left corner
+        let time = 0;
+        const timeIncrement = 0.1;
+        let interval = setInterval(() => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawScene();
+            ctx.beginPath();
+            ctx.arc(posX, posY, 5, 0, Math.PI * 2, true);
+            ctx.fillStyle = "white"; // Set ball color to white for better contrast
+            ctx.fill();
+            posX += initialVelocityX * timeIncrement;
+            posY += initialVelocityY * timeIncrement + 0.5 * gravity * Math.pow(timeIncrement, 2); // Adding gravity effect
+            initialVelocityY += gravity * timeIncrement; // Adjust velocity for gravity
+            time += timeIncrement;
+
+            const zombieWidth = 10 * Math.min(canvas.width, canvas.height) / 100;
+            const zombieHeight = zombieWidth * 1.5;
+
+            // Check for collisions with canvas borders and stop the projectile
+            if (posX <= 0 || posX >= canvas.width || posY <= 0 || posY >= canvas.height) {
+                clearInterval(interval);
+                outputDiv.innerHTML = 'Missed!';
+                return;
+            }
+
+            const zombiePos = zombiePositions[currentZombieIndex];
+            if (posX >= zombiePos.x && posX <= zombiePos.x + zombieWidth && posY >= zombiePos.y && posY <= zombiePos.y + zombieHeight) {
+                clearInterval(interval);
+                outputDiv.innerHTML = 'Hit!';
+                // Move to the next position
+                currentZombieIndex = (currentZombieIndex + 1) % zombiePositions.length;
+
+                // Check if all zombies have been hit
+                if (currentZombieIndex === 0) {
+                    showWinModal();
+                } else {
+                    setTimeout(drawScene, 1000); // Delay to visualize the hit before moving
+                }
+            }
+        }, 50);
+    }
+
+    function showWinModal() {
+        clearInterval(timerInterval); // Stop the timer
+        winModal.style.display = 'flex';
+    }
+
+    function showLossModal() {
+        clearInterval(timerInterval); // Stop the timer
+        lossModal.style.display = 'flex';
+    }
+
+    function closeModal() {
+        winModal.style.display = 'none';
+        lossModal.style.display = 'none';
+        startModal.style.display = 'none';
+    }
+
+    function startGame() {
+        closeModal();
+        drawScene();
+        timerInterval = setInterval(updateTimer, 1000); // Start the timer
+    }
+
+    function updateTimer() {
+        remainingTime--;
+        timeLeftDisplay.textContent = remainingTime;
+        if (remainingTime <= 0) {
+            showLossModal();
+        }
+    }
+
+    function mainMenu() {
+        // Redirect to main menu page
+        window.location.href = '../lvlscreen.html'; // Replace with the actual path to the main menu
+    }
+
+    function nextLevel() {
+        // Redirect to the next level page
+        window.location.href = '../cutscene5.html'; // Replace with the actual path to the next level
+    }
+
+    function restartGame() {
+        // Reset game state and start over
+        remainingTime = timeLimit;
+        currentZombieIndex = 0;
+        outputDiv.innerHTML = '';
+        drawScene();
+        closeModal();
+        timerInterval = setInterval(updateTimer, 1000); // Restart the timer
+    }
+
+    function resizeCanvas() {
+        canvas.width = window.innerWidth * 0.9; // Adjust as per your requirement
+        canvas.height = window.innerHeight * 0.8; // Adjust as per your requirement
+        drawScene();
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas(); // Initial resize to set the canvas size
+
+    angleInput.addEventListener('input', function () {
+        angleDisplay.textContent = parseFloat(this.value).toFixed(1) + '°';
+        drawTrajectory();
+    });
+
+    powerInput.addEventListener('input', function () {
+        powerDisplay.textContent = this.value;
+        drawTrajectory();
+    });
+
+    document.getElementById('shootButton').addEventListener('click', shoot);
+    startModal.addEventListener('click', startGame);
+
+    drawScene();
+</script>
+</body>
+</html>

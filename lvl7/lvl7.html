@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Defeat Piolo Challenge</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-image: url('bg.svg'); /* Update with your pixelated game background */
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            font-family: 'Press Start 2P', cursive;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 90vw;
+            max-width: 90vw;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 2vh;
+            border-radius: 12px;
+            box-shadow: 0 0 2vw rgba(255, 255, 255, 0.75);
+        }
+        .battle-area {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-bottom: 2vh;
+        }
+        .character-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 30vw;
+        }
+        .character-box {
+            width: 30vw;
+            height: 60vh;
+            border: 0.4vw solid #FFFFFF;
+            border-radius: 10px;
+            padding: 1vw;
+            background: rgba(0, 0, 0, 0.8);
+            box-shadow: 0 0 2vw #FFFFFF;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .character {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+        }
+        .answer-section {
+            flex: 1;
+            padding: 2vw;
+            margin: 0 1vw;
+            border: 0.3vw solid #FFFFFF;
+            border-radius: 8px;
+            background-color: rgba(0, 0, 0, 0.75);
+            color: #FFFFFF;
+            box-shadow: 0 0 1vw #FFFFFF;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .answer-section p {
+            margin-bottom: 1.5vh;
+            text-align: center;
+        }
+        input[type="text"], button {
+            font-size: 1rem;
+            padding: 1vh;
+            margin: 0.5vh 0;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        button {
+            cursor: pointer;
+            background-color: #FFFFFF;
+            color: #000000;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s, color 0.3s;
+            width: 80%;
+        }
+        button:hover {
+            background-color: #f2f2f2;
+        }
+        .timer-bar {
+            width: 100%;
+            background-color: #666666;
+            border-radius: 8px;
+            height: 2vh;
+            margin-top: 1vh;
+        }
+        .timer-fill {
+            height: 100%;
+            background-color: #FF6347;
+            width: 0%;
+            border-radius: 8px;
+            transition: width 0.3s ease-in-out;
+        }
+        #gameOverModal, #winModal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            display: none;
+        }
+        .modal-content {
+            padding: 2vh;
+            border: 0.3vw solid #FFFFFF;
+            background-color: #000000;
+            border-radius: 10px;
+            box-shadow: 0 0 1vw rgba(255, 255, 255, 0.75);
+            text-align: center;
+        }
+        .modal-message {
+            font-size: 1.5rem;
+            color: #FFFFFF;
+            margin: 2vh 0;
+        }
+        .hearts {
+            display: flex;
+            margin-bottom: 2vh;
+            justify-content: center;
+        }
+        .heart {
+            margin-right: 0.5vw;
+            width: 5vw;
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.2);
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="hearts" id="hearts">
+        <img src="filled_heart.svg" alt="Heart" class="heart">
+        <img src="filled_heart.svg" alt="Heart" class="heart">
+        <img src="filled_heart.svg" alt="Heart" class="heart">
+        <img src="filled_heart.svg" alt="Heart" class="heart">
+        <img src="filled_heart.svg" alt="Heart" class="heart">
+    </div>
+    <div class="battle-area">
+        <div class="character-container">
+            <div class="character-box">
+                <img src="player.svg" alt="Player" class="character">
+            </div>
+        </div>
+        <div class="answer-section">
+            <p id="question"></p>
+            <input type="text" id="answer" placeholder="Type your answer...">
+            <button onclick="submitAnswer()">Submit Answer</button>
+            <div class="timer-bar">
+                <div class="timer-fill" id="timerFill"></div>
+            </div>
+        </div>
+        <div class="character-container">
+            <div class="character-box">
+                <img src="piolo.svg" alt="Piolo" class="character">
+            </div>
+        </div>
+    </div>
+    <div id="feedback"></div>
+</div>
+
+<!-- Win Modal -->
+<div id="winModal">
+    <div class="modal-content">
+        <p class="modal-message">Victory! You have defeated Piolo.</p>
+        <button onclick="mainMenu()">Main Menu</button>
+        <button onclick="nextLevel()">Next Level</button>
+    </div>
+</div>
+
+<!-- Loss Modal -->
+<div id="gameOverModal">
+    <div class="modal-content">
+        <p class="modal-message">Game Over! You were defeated by Piolo.</p>
+        <button onclick="mainMenu()">Main Menu</button>
+        <button onclick="restartGame()">Restart</button>
+    </div>
+</div>
+
+<script>
+    const questions = [
+    { q: 'What is the value of cos(30°) on the unit circle?', a: '√3/2' },
+    { q: 'What is the value of sin(45°) on the unit circle?', a: '√2/2' },
+    { q: 'Find the value of sin(60°) on the unit circle.', a: '√3/2' },
+    { q: 'Find the value of cos(90°) on the unit circle.', a: '0' },
+    { q: 'What is the value of tan(45°) on the unit circle?', a: '1' },
+    { q: 'Find the value of cos(π/2) on the unit circle.', a: '0' },
+    { q: 'What is the value of sin(3π/2) on the unit circle?', a: '-1' },
+    { q: 'Find the value of cos(2π) on the unit circle.', a: '1' },
+    { q: 'What is the value of tan(π) on the unit circle?', a: '0' },
+    { q: 'Find the value of cos(π/3) on the unit circle.', a: '1/2' },
+    { q: 'What is the value of sin(π/4) on the unit circle?', a: '√2/2' },
+    { q: 'Find the value of tan(30°) on the unit circle.', a: '√3/3' },
+    { q: 'Find the value of sin(120°) on the unit circle.', a: '√3/2' },
+    { q: 'What is the value of cos(240°) on the unit circle?', a: '-1/2' },
+    { q: 'What is the value of tan(330°) on the unit circle?', a: '-√3/3' }
+];
+
+    let currentQuestionIndex = 0;
+    let correctAnswers = 0;
+    let wrongAnswers = 0;
+    let answerTimeLimit = 30000; // 5 seconds to answer
+    let timer;
+
+    function displayQuestion() {
+        document.getElementById("question").innerText = questions[currentQuestionIndex].q;
+        document.getElementById("answer").value = '';
+        document.getElementById("feedback").innerText = '';
+        startTimer();
+    }
+
+    function startTimer() {
+        let timeLeft = answerTimeLimit;
+        document.getElementById("timerFill").style.width = '100%';
+        clearInterval(timer);
+        timer = setInterval(() => {
+            timeLeft -= 100;
+            let percent = (timeLeft / answerTimeLimit) * 100;
+            document.getElementById("timerFill").style.width = `${percent}%`;
+
+            if (timeLeft <= 0) {
+                clearInterval(timer);
+                wrongAnswers++;
+                document.getElementById("feedback").innerText = 'Time out! Incorrect.';
+                updateHearts();
+                checkGameOver();
+                nextQuestion();
+            }
+        }, 100);
+    }
+
+    function submitAnswer() {
+        clearInterval(timer);
+        const userAnswer = document.getElementById("answer").value.trim();
+        if (userAnswer === questions[currentQuestionIndex].a) {
+            correctAnswers++;
+            document.getElementById("feedback").innerText = 'Correct!';
+            checkGameOver();
+            nextQuestion();
+        } else {
+            wrongAnswers++;
+            document.getElementById("feedback").innerText = 'Incorrect!';
+            updateHearts();
+            checkGameOver();
+            displayQuestion(); // Keep the same question if wrong
+        }
+    }
+
+    function updateHearts() {
+        const hearts = document.querySelectorAll(".heart");
+        if (wrongAnswers <= hearts.length) {
+            hearts[wrongAnswers - 1].src = "empty_heart.svg";
+            hearts[wrongAnswers - 1].style.animation = 'none'; // Stop the pulse animation
+        }
+    }
+
+    function nextQuestion() {
+        if (correctAnswers < 10 && wrongAnswers < 5) {
+            currentQuestionIndex = (currentQuestionIndex + 1) % questions.length;
+            displayQuestion();
+        }
+    }
+
+    function checkGameOver() {
+        if (correctAnswers >= 10) {
+            showWinModal();
+        } else if (wrongAnswers >= 5) {
+            showLossModal();
+        }
+    }
+
+    function showLossModal() {
+        document.getElementById("gameOverModal").style.display = 'flex';
+    }
+
+    function showWinModal() {
+        document.getElementById("winModal").style.display = 'flex';
+    }
+
+    function restartGame() {
+        document.getElementById("winModal").style.display = 'none';
+        document.getElementById("gameOverModal").style.display = 'none';
+        correctAnswers = 0;
+        wrongAnswers = 0;
+        currentQuestionIndex = 0;
+        displayQuestion();
+        // Reset hearts
+        const hearts = document.querySelectorAll(".heart");
+        hearts.forEach(heart => {
+            heart.src = "filled_heart.svg";
+            heart.style.animation = 'pulse 1s infinite'; // Restart the pulse animation
+        });
+    }
+
+    function mainMenu() {
+        // Redirect to the main menu page
+        window.location.href = '../lvlscreen.html'; // Replace with the actual path to the main menu
+    }
+
+    function nextLevel() {
+        // Redirect to the next level page
+        window.location.href = '../cutscene7.html'; // Replace with the actual path to the next level
+    }
+
+    // Initial call to start the game
+    document.addEventListener('DOMContentLoaded', displayQuestion);
+</script>
+</body>
+</html>
