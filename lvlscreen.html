@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Level Selection</title>
+    <link href="https://fonts.googleapis.com/css?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        /* Global settings */
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            background-image: url('img/bg.svg');
+            background-size: cover;
+            background-repeat: repeat;
+            background-position: center;
+            font-family: 'Press Start 2P', cursive;
+            overflow-y: auto;
+        }
+
+        .container {
+            position: relative;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            width: 100%;
+            padding: 5vh 0;
+            box-sizing: border-box;
+        }
+
+        .level-button,
+        .cutscene-button {
+            position: relative;
+            border: 3px solid #FFFFFF;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: #FFFFFF;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            image-rendering: pixelated;
+            transition: transform 0.2s ease-in-out, background-color 0.3s;
+            z-index: 1;
+        }
+
+        .level-button {
+            width: 20vw;
+            height: 20vw;
+            margin: 2vw;
+            border-radius: 50%;
+            line-height: 20vw;
+            font-size: 3vw;
+        }
+
+        .cutscene-button {
+            width: 10vw;
+            height: 10vw;
+            margin: 1.5vw;
+            border-radius: 50%;
+            line-height: 10vw;
+            font-size: 1.5vw;
+        }
+
+        .level-button:hover,
+        .cutscene-button:hover {
+            background-color: #FFFFFF;
+            color: #000000;
+            transform: scale(1.1);
+            box-shadow: 0 4px 8px rgba(255, 255, 255, 0.5);
+        }
+
+        .not-beaten {
+            background-color: #f44336;
+            color: #FFF;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.3s ease, visibility 0.3s;
+        }
+
+        .modal.active {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .modal-content {
+            background-color: #222;
+            padding: 2vw;
+            text-align: center;
+            border: 3px solid #FFF;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+            color: #FFF;
+            width: 80%;
+            max-width: 500px;
+            transform: scale(0.8);
+            transition: transform 0.3s ease;
+        }
+
+        .modal.active .modal-content {
+            transform: scale(1);
+        }
+
+        .modal h2 {
+            margin: 0 0 1vw;
+            font-size: 2vw;
+        }
+
+        .modal p {
+            font-size: 1.5vw;
+            margin: 1vw 0;
+        }
+
+        .modal button {
+            padding: 1vw;
+            margin: 0.5vw;
+            font-size: 1.5vw;
+            cursor: pointer;
+            border-radius: 5px;
+            border: 3px solid #FFF;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .modal button:hover {
+            background-color: #FFF;
+            color: #000;
+        }
+
+        .arrow {
+            cursor: pointer;
+            font-size: 3vw;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            user-select: none;
+            color: #FFF;
+            border: 2px solid #FFF;
+            border-radius: 5px;
+            padding: 0.5vw;
+            transition: transform 0.2s, border 0.2s, box-shadow 0.2s;
+        }
+
+        .arrow:hover {
+            transform: scale(1.1);
+            border: 3px solid #00e1ff;
+            box-shadow: 0 0 10px #00e1ff;
+        }
+
+        .arrow.left {
+            left: 10%;
+        }
+
+        .arrow.right {
+            right: 10%;
+        }
+
+        @media (max-width: 768px) {
+            .level-button {
+                width: 30vw;
+                height: 30vw;
+                font-size: 5vw;
+                line-height: 30vw;
+            }
+
+            .cutscene-button {
+                width: 15vw;
+                height: 15vw;
+                font-size: 3vw;
+                line-height: 15vw;
+            }
+
+            .modal h2 {
+                font-size: 4vw;
+            }
+
+            .modal p {
+                font-size: 3vw;
+            }
+
+            .modal button {
+                padding: 2vw;
+                font-size: 3vw;
+            }
+
+            .arrow {
+                font-size: 4vw;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .level-button {
+                width: 40vw;
+                height: 40vw;
+                font-size: 7vw;
+                line-height: 40vw;
+            }
+
+            .cutscene-button {
+                width: 20vw;
+                height: 20vw;
+                font-size: 4vw;
+                line-height: 20vw;
+            }
+
+            .modal h2 {
+                font-size: 6vw;
+            }
+
+            .modal p {
+                font-size: 4vw;
+            }
+
+            .modal button {
+                padding: 3vw;
+                font-size: 4vw;
+            }
+
+            .arrow {
+                font-size: 5vw;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <button class="cutscene-button" data-type="cutscene" data-id="0">C0</button>
+        <button class="level-button" data-type="level" data-id="1" data-name="Level 1" data-description="Escape the Music Room">1</button>
+        <button class="cutscene-button" data-type="cutscene" data-id="1">C1</button>
+        <button class="level-button" data-type="level" data-id="2" data-name="Level 2" data-description="Build a Barricade">2</button>
+        <button class="cutscene-button" data-type="cutscene" data-id="2">C2</button>
+        <button class="level-button" data-type="level" data-id="3" data-name="Level 3" data-description="Locked Out">3</button>
+        <button class="cutscene-button" data-type="cutscene" data-id="3">C3</button>
+        <button class="level-button" data-type="level" data-id="4" data-name="Level 4" data-description="Build a Zombie Killing Machine">4</button>
+        <button class="cutscene-button" data-type="cutscene" data-id="4">C4</button>
+        <button class="level-button" data-type="level" data-id="5" data-name="Level 5" data-description="Zombie Shooter">5</button>
+        <button class="cutscene-button" data-type="cutscene" data-id="5">C5</button>
+        <button class="level-button" data-type="level" data-id="6" data-name="Level 6" data-description="Megaphone Blast">6</button>
+        <button class="cutscene-button" data-type="cutscene" data-id="6">C6</button>
+        <button class="level-button" data-type="level" data-id="7" data-name="Level 7" data-description="A Legendary Battle">7</button>
+        <button class="cutscene-button" data-type="cutscene" data-id="7">C7</button>
+        <button class="level-button" data-type="level" data-id="8" data-name="Level 8" data-description="The final ChallengeS">8</button>
+        <button class="cutscene-button" data-type="cutscene" data-id="8">C8</button>
+    </div>
+
+    <div class="modal" id="modal">
+        <div class="arrow left" id="prev">&larr;</div>
+        <div class="modal-content" id="modal-content">
+            <h2 id="modal-title"></h2>
+            <p id="modal-description"></p>
+            <button id="action-button"></button>
+            <button id="close-button">Close</button>
+        </div>
+        <div class="arrow right" id="next">&rarr;</div>
+    </div>
+
+    <script>
+        const modal = document.getElementById('modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalDescription = document.getElementById('modal-description');
+        const actionButton = document.getElementById('action-button');
+        const closeButton = document.getElementById('close-button');
+        const prevButton = document.getElementById('prev');
+        const nextButton = document.getElementById('next');
+    
+        let currentIndex = 0;
+        const buttons = Array.from(document.querySelectorAll('.level-button, .cutscene-button'));
+    
+        function openModal(index) {
+            currentIndex = index;
+            const button = buttons[index];
+            const type = button.getAttribute('data-type');
+            const id = button.getAttribute('data-id');
+            
+            modalTitle.textContent = type === 'cutscene' ? 'Play Cutscene' : button.getAttribute('data-name');
+            modalDescription.textContent = type === 'cutscene' ? '' : button.getAttribute('data-description');
+            actionButton.textContent = type === 'cutscene' ? 'Play Cutscene' : 'Play Level';
+            actionButton.onclick = function () {
+                // Navigate to the appropriate page
+                if (type === 'cutscene') {
+                    window.location.href = `cutscene${id}.html`; // Example: cutscene0.html
+                } else {
+                    window.location.href = `lvl${id}/lvl${id}.html`; // Example: level1.html
+                }
+            };
+    
+            modal.classList.add('active');
+        }
+    
+        function closeModal() {
+            modal.classList.remove('active');
+        }
+    
+        function navigate(offset) {
+            const newIndex = currentIndex + offset;
+            if (newIndex >= 0 && newIndex < buttons.length) {
+                openModal(newIndex);
+            }
+        }
+    
+        buttons.forEach((button, index) => {
+            button.addEventListener('click', () => openModal(index));
+        });
+    
+        closeButton.addEventListener('click', closeModal);
+        prevButton.addEventListener('click', () => navigate(-1));
+        nextButton.addEventListener('click', () => navigate(1));
+    </script>
+    
+</body>
+
+</html>

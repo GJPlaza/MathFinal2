@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Title Page</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-image: url('img/bg.svg');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            font-family: 'Press Start 2P', cursive;
+            overflow: hidden;
+        }
+
+        @keyframes floatAnimation {
+            0%,
+            100% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+
+            50% {
+                transform: translate(-2vw, 2vh) rotate(-10deg);
+            }
+        }
+
+        @keyframes colorChange {
+            0%,
+            100% {
+                filter: hue-rotate(0deg);
+            }
+
+            50% {
+                filter: hue-rotate(30deg);
+            }
+        }
+
+        #game-title-image {
+            width: 90vw;
+            max-width: 100%;
+            margin: 0 auto -2vh;
+            display: block;
+            animation: floatAnimation 5s ease-in-out infinite alternate, colorChange 8s ease-in-out infinite;
+        }
+
+        @keyframes flicker {
+            0%,
+            100% {
+                box-shadow: 0 0 1vw #FFFFFF, 0 0 2vw #FFFFFF, 0 0 3vw #FFFFFF, 0 0 4vw #00e1ff, 0 0 7vw #00e1ff, 0 0 8vw #00e1ff, 0 0 10vw #00e1ff, 0 0 15vw #00e1ff;
+            }
+
+            10%,
+            90% {
+                box-shadow: 0 0 0.5vw #FFFFFF, 0 0 1vw #FFFFFF, 0 0 1.5vw #FFFFFF, 0 0 2vw #00e1ff, 0 0 3.5vw #00e1ff, 0 0 4vw #00e1ff, 0 0 5vw #00e1ff, 0 0 7.5vw #00e1ff;
+            }
+
+            20%,
+            80% {
+                box-shadow: 0 0 1vw #FFFFFF, 0 0 2vw #FFFFFF, 0 0 3vw #00e1ff, 0 0 4vw #00e1ff, 0 0 5vw #00e1ff, 0 0 6vw #00e1ff, 0 0 7vw #00e1ff;
+            }
+
+            30%,
+            70% {
+                box-shadow: 0 0 1.5vw #FFFFFF, 0 0 3vw #FFFFFF, 0 0 4.5vw #00e1ff, 0 0 6vw #00e1ff, 0 0 7.5vw #00e1ff;
+            }
+
+            40%,
+            60% {
+                box-shadow: 0 0 2vw #FFFFFF, 0 0 4vw #FFFFFF, 0 0 6vw #00e1ff, 0 0 8vw #00e1ff, 0 0 10vw #00e1ff;
+            }
+
+            50% {
+                box-shadow: 0 0 2.5vw #FFFFFF, 0 0 5vw #FFFFFF, 0 0 7.5vw #00e1ff, 0 0 10vw #00e1ff, 0 0 12.5vw #00e1ff;
+            }
+        }
+
+        #start-game-button {
+            width: 45vw;
+            margin: 2vh auto 0;
+            padding: 2vh 0;
+            background-color: rgba(0, 0, 0, 0.75);
+            color: #FFFFFF;
+            border: 0.4vw solid #FFFFFF;
+            border-radius: 8px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 3vw;
+            text-align: center;
+            cursor: pointer;
+            box-shadow: 0 0 1.5vw #FFFFFF;
+            image-rendering: pixelated;
+            display: block;
+            animation: flicker 1.5s infinite;
+        }
+
+        #start-game-button:hover {
+            background-color: #FFFFFF;
+            color: #000000;
+            box-shadow: 0 0 2vw #000000;
+        }
+
+        .game-item {
+            position: absolute;
+            width: 15vw;
+            height: 15vh;
+            background-size: contain;
+            background-repeat: no-repeat;
+            animation: floatAnimation 5s ease-in-out infinite alternate, colorChange 10s ease-in-out infinite alternate;
+        }
+
+        .container {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 90vw;
+            max-width: 1200px;
+            overflow: visible;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <img src="img/title2.svg" alt="Game Title" id="game-title-image">
+        <button type="button" id="start-game-button">Start Game</button>
+    </div>
+    <div class="game-item" style="top: 10%; left: 15%; background-image: url('img/item1.svg'); animation-duration: 7s;"></div>
+    <div class="game-item" style="top: 50%; left: 80%; background-image: url('img/item2.svg'); animation-duration: 8s;"></div>
+    <div class="game-item" style="top: 80%; left: 15%; background-image: url('img/item3.svg'); animation-duration: 6s;"></div>
+</body>
+<script>
+    document.getElementById("start-game-button").addEventListener("click", function () {
+        window.location.href = "cutscene.html"; // Replace with the desired URL
+    });
+</script>
+
+</html>

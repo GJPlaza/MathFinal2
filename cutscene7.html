@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap">
+    <style>
+        body {
+            font-family: 'Press Start 2P', cursive;
+            background-image: url('img/L8A0.svg'); /* Set your background image */
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            color: #fff;
+            margin: 0;
+            font-size: calc(1rem + 1vw); /* Adjust font size based on viewport */
+        }
+
+        .middle {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+
+        .container {
+            text-align: left;
+            width: 80%;
+            max-width: 80vw; /* Scale container width */
+            height: 40vh; /* Set container height based on viewport */
+            white-space: pre-wrap;
+            overflow: hidden;
+            line-height: 1.5; /* Add spacing between lines */
+            font-size: calc(0.8rem + 0.8vw); /* Adjust font size based on viewport */
+            position: relative;
+            margin-bottom: 20px; /* Add space between container and button */
+        }
+
+        button {
+            width: 15vw; /* Adjust button width */
+            padding: 1vw; /* Adjust padding */
+            color: black;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            overflow: hidden;
+            font-size: calc(0.8rem + 0.5vw); /* Adjust font size */
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            background-color: #fff; /* Button background color */
+        }
+
+        button:hover {
+            background-color: #eee; /* Hover effect for button */
+        }
+
+        .arrow-line {
+            width: 0;
+            height: 0;
+            border-top: 10px solid transparent;
+            border-bottom: 10px solid transparent;
+            border-left: 10px solid #8FED8F;
+            margin-right: 1vw; /* Adjust margin */
+            margin-left: 1vw; /* Adjust margin */
+            animation: speedBoostAnimation 0.5s infinite alternate;
+        }
+
+        @keyframes speedBoostAnimation {
+            0%, 100% {
+                transform: scaleX(1);
+            }
+            50% {
+                transform: scaleX(1.5);
+            }
+        }
+
+        @media only screen and (max-width: 600px) {
+            .container {
+                width: 90%; /* Adjust width for smaller screens */
+                height: 50vh; /* Adjust height for smaller screens */
+            }
+
+            button {
+                width: 30vw; /* Adjust button width for smaller screens */
+                font-size: calc(0.7rem + 0.5vw); /* Adjust font size */
+            }
+        }
+    </style>
+    <title>Text Generation Animation</title>
+</head>
+<body>
+    <div class="middle">
+        <div class="container" id="text-container"></div>
+        <button onclick="generateNextParagraph()">
+            <div class="arrow-line"></div>
+            <div class="arrow-line"></div>
+            <div class="arrow-line"></div>
+        </button>
+    </div>
+
+    <script>
+        const textContainer = document.getElementById("text-container");
+        const button = document.querySelector("button");
+        let currentParagraphIndex = 0;
+        let isGenerating = false;
+
+        const paragraphs = [
+           "Without a moment to waste after defeating Piolo, the player tries to fix the equipment and finally put an end to this zombie outbreak."
+
+        ];
+
+        let currentTimeout;
+
+        function generateText(text, index) {
+    const currentText = text.slice(0, index);
+    textContainer.innerHTML = currentText;
+
+    if (index < text.length) {
+        currentTimeout = setTimeout(() => {
+            generateText(text, index + 1);
+        }, 25);
+    } else {
+        isGenerating = false;
+    }
+}
+
+function generateNextParagraph() {
+    if (isGenerating) {
+        clearTimeout(currentTimeout);
+        isGenerating = false;
+    }
+
+    if (currentParagraphIndex < paragraphs.length) {
+        const currentText = paragraphs[currentParagraphIndex];
+        textContainer.innerHTML = "";
+        isGenerating = true;
+        generateText(currentText, 0);
+        currentParagraphIndex++;
+    } else {
+        redirectToNextPage();
+    }
+}
+
+function redirectToNextPage() {
+    // Replace 'nextPage.html' with the actual URL of the page you want to redirect to
+    window.location.href = 'lvl8/lvl8.html';
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    generateNextParagraph();
+});
+    </script>
+</body>
+</html>
