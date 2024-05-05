@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Level 2: Obtain the Passcode</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-image: url('bg.svg'); /* Update with your pixelated game background */
+            font-family: 'Press Start 2P', cursive;
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+        .container {
+            text-align: center;
+            background: rgba(0, 0, 0, 0.8); /* Black with opacity */
+            padding: 2vh 2vw;
+            border-radius: 1vw;
+            box-shadow: 0 0 1vw rgba(255, 255, 255, 0.8); /* White shadow */
+            color: #FFFFFF; /* White */
+            width: 80vw;
+            max-width: 60vw;
+            animation: fadeIn 1s ease-out forwards;
+            font-size: 1.5vh;
+            font-family: 'Press Start 2P', cursive;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-2vh); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        h1 {
+            color: #FFFFFF; /* White */
+            text-shadow: 0.3vh 0.3vh #000;
+            font-size: 2.5vh;
+            font-family: 'Press Start 2P', cursive;
+        }
+        p {
+            font-size: 3vh;
+            font-family: 'Press Start 2P', cursive;
+        }
+        .button-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 1vh 0;
+            font-family: 'Press Start 2P', cursive;
+        }
+        button {
+            font-family: 'Press Start 2P';
+            margin: 1vh;
+            padding: 1.5vh 2vh;
+            background-color: #FFFFFF; /* White */
+            color: #000000; /* Black */
+            border: 0.3vh solid #FFFFFF; /* White border */
+            border-radius: 0.5vh;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s, transform 0.2s;
+            font-size: 1.3vh;
+        }
+        button:hover, button:focus {
+            background-color: #808080; /* Gray */
+            color: #FFFFFF; /* White */
+        }
+        input[type="text"], input[type="number"] {
+            padding: 1.5vh;
+            margin: 1vh;
+            font-size: 1.3vh;
+            text-align: center;
+            border: 0.3vh solid #000000; /* Black border */
+            background-color: #808080; /* Gray */
+            color: #FFFFFF; /* White */
+        }
+        input.solved {
+            border: 0.3vh solid #FFFFFF; /* White */
+            background-color: #41cd2f; /* Light gray */
+            color: #000000; /* Black */
+        }
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            font-family: 'Press Start 2P', cursive;
+        }
+        .modal-content {
+            padding: 3vh;
+            border: 0.3vh solid #FFFFFF;
+            background-color: #000000;
+            border-radius: 1vh;
+            box-shadow: 0 0 1vh #FFFFFF; /* White */
+            text-align: center;
+            width: 70vw;
+            max-width: 50vw;
+            animation: fadeInModal 0.3s ease-out forwards;
+            cursor: pointer;
+            font-family: 'Press Start 2P', cursive;
+        }
+        @keyframes fadeInModal {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        #timer {
+            font-size: 2vh;
+            color: #FFFFFF; /* White */
+            margin: 1vh 0;
+        }
+        #playAgainButton, #nextLevelButton, #mainMenuButton, #restartButton {
+            font-size: 1.3vh;
+            padding: 1.5vh 2.5vh;
+            cursor: pointer;
+            background: #FFFFFF;
+            color: #000000;
+            border-radius: 0.5vh;
+            margin: 0.5vh;
+            font-family: 'Press Start 2P', cursive;
+        }
+        #playAgainButton:hover, #nextLevelButton:hover, #mainMenuButton:hover, #restartButton:hover {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Obtain the Passcode</h1>
+    <div id="timer">Time left: 5:00</div>
+    <p>Complete each math riddle to reveal parts of the passcode:</p>
+    <div class="button-container">
+        <button onclick="showModal('riddle1')">Answer Riddle 1</button>
+        <button onclick="showModal('riddle2')">Answer Riddle 2</button>
+        <button onclick="showModal('riddle3')">Answer Riddle 3</button>
+    </div>
+    <div id="passcodeInput">
+        <input type="text" id="riddle1Code" placeholder="R1" disabled>
+        <input type="text" id="riddle2Code" placeholder="R2" disabled>
+        <input type="text" id="riddle3Code" placeholder="R3" disabled>
+    </div>
+    <button onclick="verifyPasscode()">Unlock</button>
+</div>
+<div id="riddle1Modal" class="modal">
+    <div class="modal-content">
+        <h2>Riddle 1</h2>
+        <p>I have no edges, but I do have a face. All points on me are equidistant from a single point inside me. What am I?</p>
+        <input type="text" id="answerRiddle1">
+        <button onclick="checkAnswer('riddle1', 'sphere')">Submit</button>
+    </div>
+</div>
+<div id="riddle2Modal" class="modal">
+    <div class="modal-content">
+        <h2>Riddle 2</h2>
+        <p>I can be round or flat, and often described as infinite. What am I?</p>
+        <input type="text" id="answerRiddle2">
+        <button onclick="checkAnswer('riddle2', 'plane')">Submit</button>
+    </div>
+</div>
+<div id="riddle3Modal" class="modal">
+    <div class="modal-content">
+        <h2>Riddle 3</h2>
+        <p>I’m a polygon with as many sides as letters in my name. What am I?</p>
+        <input type="text" id="answerRiddle3">
+        <button onclick="checkAnswer('riddle3', 'hexagon')">Submit</button>
+    </div>
+</div>
+<div id="gameOverModal" class="modal">
+    <div class="modal-content">
+        <p class="modal-message" id="modalMessage"></p>
+        <div class="play-again-container">
+            <button id="mainMenuButton" onclick="mainMenu()">Main Menu</button>
+            <button id="restartButton" onclick="restartGame()">Restart</button>
+            <button id="nextLevelButton" onclick="nextLevel()">Next Level</button>
+        </div>
+    </div>
+</div>
+<div id="startModal" class="modal">
+    <div class="modal-content" onclick="startGame()">
+        <h2 style="color: white;">Level 2: Obtain the Passcode</h2>
+        <p>You have to solve the riddles to uncover the passcode and progress to the next level.</p>
+    </div>
+</div>
+<script>
+    let passcodeParts = { riddle1: false, riddle2: false, riddle3: false };
+    let totalSeconds = 300; // 10 minutes
+    let timerInterval;
+
+    function showModal(type) {
+        document.getElementById(type + 'Modal').style.display = 'flex';
+    }
+
+    function solvePuzzle(type, codePart) {
+        let inputField = document.getElementById(type + 'Code');
+        document.getElementById(type + 'Modal').style.display = 'none';
+        inputField.value = codePart;
+        inputField.disabled = false;
+        inputField.classList.add('solved');
+        passcodeParts[type] = true;
+    }
+
+    function checkAnswer(riddle, correctAnswer) {
+        let userAnswer = document.getElementById('answer' + riddle.charAt(0).toUpperCase() + riddle.slice(1)).value;
+        if (userAnswer.toLowerCase() === correctAnswer.toString()) {
+            solvePuzzle(riddle, riddle.toUpperCase());
+        } else {
+            alert('Incorrect answer. Try again.');
+        }
+    }
+
+    function verifyPasscode() {
+        if (passcodeParts.riddle1 && passcodeParts.riddle2 && passcodeParts.riddle3) {
+            clearInterval(timerInterval);
+            showGameOverModal('Passcode Correct! You have unlocked the next level.', 'success');
+        } else {
+            alert('Incorrect Passcode. Please try again.');
+        }
+    }
+
+    function updateTimer() {
+        let minutes = Math.floor(totalSeconds / 60);
+        let seconds = totalSeconds % 60;
+        document.getElementById('timer').textContent = `Time left: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+        if (totalSeconds <= 0) {
+            clearInterval(timerInterval);
+            showGameOverModal('Time is up! You failed to obtain the passcode.', 'fail');
+        }
+        totalSeconds--;
+    }
+
+    function showGameOverModal(message, status) {
+        document.getElementById('modalMessage').textContent = message;
+        document.getElementById('gameOverModal').style.display = 'flex';
+        document.getElementById('nextLevelButton').style.display = status === 'success' ? 'inline-block' : 'none';
+    }
+
+    function restartGame() {
+        document.getElementById('gameOverModal').style.display = 'none';
+        totalSeconds = 300; // Reset time
+        passcodeParts = { riddle1: false, riddle2: false, riddle3: false };
+        document.getElementById('riddle1Code').classList.remove('solved');
+        document.getElementById('riddle2Code').classList.remove('solved');
+        document.getElementById('riddle3Code').classList.remove('solved');
+        document.getElementById('riddle1Code').value = '';
+        document.getElementById('riddle2Code').value = '';
+        document.getElementById('riddle3Code').value = '';
+        timerInterval = setInterval(updateTimer, 1000); // Restart timer
+    }
+
+    function mainMenu() {
+        alert('Returning to the main menu...');
+        // Implement main menu redirection here
+        window.location.href = '../lvlscreen.html';
+    }
+
+    function nextLevel() {
+        alert('Next Level coming soon...');
+        window.location.href = '../cutscene3.html';
+        // Implement next level redirection here
+    }
+
+    function startGame() {
+        document.getElementById('startModal').style.display = 'none';
+        timerInterval = setInterval(updateTimer, 1000);
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        document.getElementById("startModal").style.display = "flex";
+    });
+</script>
+</body>
+</html>

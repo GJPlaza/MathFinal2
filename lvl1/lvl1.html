@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lvl1</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-image: url('bg.svg'); /* Set your background image */
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            font-family: 'Press Start 2P', cursive;
+        }
+        .container {
+            position: relative;
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            width: 90%;
+            max-width: 1200px;
+        }
+        .game-box, .animation-box {
+            padding: 20px;
+            margin: 10px;
+            border: 4px solid #FFFFFF;
+            background-color: rgba(0, 0, 0, 0.75);
+            color: #FFFFFF;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 0 15px #FFFFFF;
+            image-rendering: pixelated;
+        }
+        .game-box {
+            width: calc(40% - 20px);
+        }
+        .animation-box {
+            width: calc(50% - 20px);
+        }
+        h3, h5, p, input, button, #feedback, #progressbar, #score, #timeLeft {
+            font-family: 'Press Start 2P', cursive;
+            color: #FFFFFF;
+            text-shadow: 0 0 5px #000000;
+        }
+        input, button {
+            background: #000000;
+            border: 2px solid #FFFFFF;
+            padding: 5px 10px;
+            color: #FFFFFF;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        button:hover {
+            background: #FFFFFF;
+            color: #000000;
+        }
+        input {
+            margin: 10px 0;
+        }
+        #playAgainModal, #startModal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8); /* darker modal background for more emphasis */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 20;
+            animation: fadeIn 0.5s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .modal-content {
+            text-align: center;
+            padding: 40px;
+            border: 3px solid #FFFFFF;
+            background-color: #000000;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(255, 255, 255, 0.5);
+            animation: scaleIn 0.5s;
+        }
+        @keyframes scaleIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .modal-message {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+        }
+        .description {
+            font-size: 0.9rem;
+            color: #AAAAAA; /* lighter grey for less emphasis */
+            margin-bottom: 20px;
+        }
+        #playAgainButton, #nextLevelButton, #mainMenuButton, #restartButton {
+            font-size: 1rem;
+            padding: 10px 20px;
+            cursor: pointer;
+            background: #FFFFFF;
+            color: #000000;
+            border-radius: 5px;
+        }
+        #playAgainButton:hover, #nextLevelButton:hover, #mainMenuButton:hover, #restartButton:hover {
+            background-color: #f2f2f2;
+        }
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+        }
+        .animation-img {
+            width: 100%;
+            border-radius: 8px;
+        }
+        .first-image, .second-image {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="game-box">
+        <p id="question"></p>
+        <input type="text" id="answer" placeholder="Enter your answer here">
+        <button onclick="submitAnswer()">Submit</button>
+        <div id="feedback"></div>
+        <p>Time Left: <span id="timeLeft">120</span> seconds</p>
+    </div>
+    <div class="animation-box">
+        <img src="L1A1.svg" alt="First Animation Frame" class="animation-img" id="firstAnimationFrame">
+        <img src="L1A2.svg" alt="Second Animation Frame" class="animation-img" id="secondAnimationFrame" style="display: none;">
+        <img src="L1A3.svg" alt="First Image" class="first-image" id="firstImage">
+        <img src="L1A4.svg" alt="Second Image" class="second-image" id="secondImage">
+        <div id="playAgainModal" style="display: none;">
+            <div class="modal-content">
+                <p class="modal-message" id="modalMessage"></p>
+                <p class="description" id="modalDescription"></p>
+                <div class="play-again-container">
+                    <button id="mainMenuButton" onclick="mainMenu()">Main Menu</button>
+                    <button id="restartButton" onclick="restartGame()" style="display: none;">Restart</button>
+                    <button id="nextLevelButton" onclick="nextLevel()" style="display: none;">Next Level</button>
+                </div>
+            </div>
+        </div>
+        <div id="startModal">
+            <div class="modal-content">
+                <p class="modal-message">LVL 1: Escape the Music Room</p>
+                <p class="description">Use your math skills to escape the music room before the zombies break in</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const questions = [
+        { q: 'Solve for 𝑥: 2𝑥 + 7 = 19.', a: '6' },
+        { q: 'If 10x + 6= 3x + 27, what is x?', a: '3' },
+        { q: 'Solve for 𝑥: 6(x+2)=36', a: '4' },
+        { q: 'Solve for 𝑥: 4(x−2)=20', a: '7' },
+        { q: 'Solve for 𝑥: 4(x−3)+6=10−2x', a: '8/6' }
+        // More questions can be added here
+    ];
+    let currentQuestionIndex = 0;
+    let timeLeft = 120;
+    let timer;
+    let animationInterval;
+
+    function displayQuestion() {
+        document.getElementById("question").innerText = questions[currentQuestionIndex].q;
+        document.getElementById("answer").value = '';
+        document.getElementById("feedback").innerText = '';
+    }
+
+    function gameOver(message, isWin) {
+        clearInterval(timer);
+        clearInterval(animationInterval); // Stop animation
+        document.getElementById("modalMessage").textContent = message;
+        document.getElementById("modalDescription").textContent = isWin ? "Great job on clearing this level!" : "Try again to beat the zombies!";
+        document.getElementById("playAgainModal").style.display = "flex";
+        document.getElementById("restartButton").style.display = isWin ? "none" : "inline-block";
+        document.getElementById("nextLevelButton").style.display = isWin ? "inline-block" : "none";
+        document.getElementById("playAgainButton").style.display = isWin ? "none" : "inline-block";
+    }
+
+    function showLoseModal() {
+        gameOver('You Lose! The zombies got you!', false);
+    }
+
+    function submitAnswer() {
+        const userAnswer = document.getElementById("answer").value;
+        const correctAnswer = questions[currentQuestionIndex].a;
+
+        if (userAnswer === correctAnswer) {
+            currentQuestionIndex++;
+            if (currentQuestionIndex >= questions.length) {
+                gameOver('Congratulations, you won!', true);
+            } else {
+                displayQuestion();
+            }
+        } else {
+            clearInterval(animationInterval); // Stop animation
+            document.getElementById("firstAnimationFrame").style.display = "none";
+            document.getElementById("secondAnimationFrame").style.display = "none";
+            document.getElementById("firstImage").style.display = "block";
+            
+            setTimeout(() => {
+                document.getElementById("firstImage").style.display = "none";
+                document.getElementById("secondImage").style.display = "block";
+            }, 1000); // Adjust timing as necessary
+            
+            setTimeout(() => {
+                showLoseModal();
+            }, 2000); // Adjust timing as necessary
+        }
+    }
+
+    function updateTimer() {
+        document.getElementById("timeLeft").innerText = timeLeft;
+        if (timeLeft <= 0) {
+            gameOver('Time is up! You did not answer all questions.', false);
+        }
+    }
+
+    function startAnimation() {
+        let toggle = true;
+        animationInterval = setInterval(() => {
+            document.getElementById("firstAnimationFrame").style.display = toggle ? "block" : "none";
+            document.getElementById("secondAnimationFrame").style.display = toggle ? "none" : "block";
+            toggle = !toggle;
+        }, 500); // Adjust timing as necessary
+    }
+
+    function playAgain() {
+        document.getElementById("playAgainModal").style.display = "none";
+        document.getElementById("firstAnimationFrame").style.display = "block";
+        document.getElementById("secondAnimationFrame").style.display = "none";
+        document.getElementById("firstImage").style.display = "none";
+        document.getElementById("secondImage").style.display = "none";
+        currentQuestionIndex = 0;
+        timeLeft = 120;
+        displayQuestion();
+        startTimer();
+        startAnimation(); // Restart animation
+    }
+
+    function restartGame() {
+        playAgain();
+    }
+
+    function nextLevel() {
+        // Placeholder function for moving to the next level
+        alert('Next Level coming soon...');
+        window.location.href = '../cutscene2.html';
+    }
+
+    function mainMenu() {
+        // Placeholder function for returning to the main menu
+        alert('Returning to the main menu...');
+window.location.href = '../lvlscreen.html';
+    }
+
+    function startTimer() {
+        timer = setInterval(function() {
+            timeLeft--;
+            updateTimer();
+        }, 1000);
+    }
+
+    document.getElementById("startModal").addEventListener("click", function() {
+        this.style.display = "none";
+        startTimer();
+        startAnimation(); // Start animation on load
+    });
+
+    displayQuestion();
+</script>
+</body>
+</html>
